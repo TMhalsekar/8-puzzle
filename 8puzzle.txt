@@ -1,0 +1,211 @@
+import static java.time.Clock.system;
+import java.util.*;
+public class Puzzle8{
+    static Scanner sc = new Scanner(System.in);
+    static int puzzle[][] = new int[3][3];
+    static int goal[][] = new int[3][3];
+    static int misplaced=0;
+    static int col, row;
+    public static void main(String args[]){
+        int i, j, hUp, hDown, hLeft, hRight, step;
+        //puzzle[][] = {{2,8,3}, {1,6,4}, {7,0,5}};
+        System.out.println("Enter the puzzle values row by row (0 for blank)");
+        for(i=0; i<3; i++){
+            for(j=0; j<3; j++){
+                puzzle[i][j] = sc.nextInt();
+            }
+        }
+        System.out.println("The puzzle is:");
+        printArray(puzzle);
+        System.out.println("Enter the Goal values row by row (0 for blank)");
+        for(i=0; i<3; i++){
+            for(j=0; j<3; j++){
+                goal[i][j] = sc.nextInt();
+            }
+        }
+        System.out.println("\nThe Goal is:");
+        printArray(goal);
+        
+        misplaced = checkMisplaced(puzzle);
+        System.out.println("\nMisplaced tiles are: "+ misplaced);
+        step = 1;
+        while(misplaced!=0){
+            find0();
+            hUp = checkUp();
+            hDown = checkDown();
+            hLeft = checkLeft();
+            hRight = checkRight();
+            /*check the least*/
+            if((hUp <= hDown) && (hUp <= hLeft) && (hUp <= hRight)){
+            	misplaced = hUp;
+            	System.out.println("Step number: " + step++ + "-> move Down");
+            	moveUp();
+                System.out.println("\n Heuristic value =total tiles - placed tiles: " );
+            	System.out.println("\n Heuristic value = " + misplaced);
+            }
+            else if((hDown <= hLeft) && (hDown <= hRight) && (hDown <= hUp)){
+            	misplaced = hDown;      	
+            	System.out.println("Step number: " + step++ +"-> move Up");
+            	moveDown();
+            	System.out.println("\n Heuristic value =total tiles - placed tiles: " );
+            	System.out.println("\n Heuristic value =" +misplaced);
+            }
+            else if((hLeft <= hRight) && (hLeft <= hUp) && (hLeft <= hDown)){
+            	misplaced = hLeft;          	
+            	System.out.println("Step number: " + step++ +"-> move Right");
+            	moveLeft();
+            	System.out.println("\n Heuristic value =total tiles - placed tiles: " );
+            	System.out.println("\n Heuristic value = " + misplaced);
+                            }
+            else{
+            	misplaced = hRight;
+            	System.out.println("Step number: " + step++ +"-> move Left");
+            	moveRight();
+            	System.out.println("\n Heuristic value =total tiles - placed tiles: " );
+            	System.out.println("\n Heuristic value = " + misplaced);
+            }
+        }
+        System.out.println("Goal reached!");
+    }
+    
+    static void printArray(int dummy[][]){
+        int i;
+        System.out.println();
+        for(i=0; i<3; i++){
+            System.out.printf("%d \t %d \t %d\n", dummy[i][0], dummy[i][1], dummy[i][2]);
+        }
+    }
+    
+    static int checkMisplaced(int dummy[][]){
+        int i, j, newMisplaced, correct = 0;
+        for(i=0; i<3; i++){
+            for(j=0; j<3; j++){
+                if((dummy[i][j]!=0) && (dummy[i][j] == goal[i][j]))
+                	/*don't check for blank tile it will create calculation errors*/ 
+                    correct++;
+            }
+        }
+        newMisplaced = 8 - correct;
+        System.out.println("heuristic "+newMisplaced);
+        return newMisplaced;  
+    }
+ 
+    
+    static void find0(){
+        int i,j;
+        for(i=0; i<3; i++){
+            for(j=0; j<3; j++){
+                if(puzzle[i][j] == 0){
+                    row = i; 
+                    col = j;
+                }  
+            }
+        }
+    }
+    
+    static int checkUp(){
+        int i, j;
+        int temp[][] = new int[3][3];
+        if(row == 2)
+            return 999;
+        else{
+            for(i=0; i<3; i++){
+                for(j=0; j<3; j++){
+                    temp[i][j] = puzzle[i][j];
+                }
+            }
+            temp[row][col] = temp[row+1][col];
+            temp[row+1][col] = 0;
+            int[][] temp1 = temp;
+            printArray(temp1);
+        	
+        }
+        return checkMisplaced(temp);
+        
+    }
+    
+    static int checkDown(){
+        int i, j;
+        int temp[][] = new int[3][3];
+        if(row == 0)
+            return 999;
+        else{
+            for(i=0; i<3; i++){
+                for(j=0; j<3; j++){
+                    temp[i][j] = puzzle[i][j];
+                }
+            }
+            temp[row][col] = temp[row-1][col];
+            temp[row-1][col] = 0;
+            printArray(temp);
+
+        }
+        return checkMisplaced(temp);            
+    }
+    
+    static int checkLeft(){
+        int i, j;
+        int temp[][] = new int[3][3];
+        if(col == 2)
+            return 999;
+        else{
+            for(i=0; i<3; i++){
+                for(j=0; j<3; j++){
+                    temp[i][j] = puzzle[i][j];
+                }
+            }
+            temp[row][col] = temp[row][col+1];
+            temp[row][col+1] = 0;
+            printArray(temp);
+            
+        }
+        return checkMisplaced(temp);            
+    }
+    
+    static int checkRight(){
+        int i, j;
+        int temp[][] = new int[3][3];
+        if(col == 0)
+            return 999;
+        else{
+            for(i=0; i<3; i++){
+                for(j=0; j<3; j++){
+                    temp[i][j] = puzzle[i][j];
+                }
+            }
+            temp[row][col] = temp[row][col-1];
+            temp[row][col-1] = 0;
+            printArray(temp);
+           
+        }
+        return checkMisplaced(temp);            
+    }
+    
+    static void moveUp()
+    {
+    	puzzle[row][col] = puzzle[++row][col];
+    	puzzle[row][col] = 0;
+    	printArray(puzzle);
+        
+    }
+    
+    static void moveDown(){
+    	puzzle[row][col] = puzzle[--row][col];
+        puzzle[row][col] = 0;
+        printArray(puzzle);
+    }
+    
+    static void moveLeft(){
+    	puzzle[row][col] = puzzle[row][++col];
+        puzzle[row][col] = 0;
+        printArray(puzzle);
+    }
+    
+    static void moveRight(){
+    	puzzle[row][col] = puzzle[row][--col];
+        puzzle[row][col] = 0;
+        printArray(puzzle);
+        
+    }
+    
+}
